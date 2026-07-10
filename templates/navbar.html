@@ -1,0 +1,49 @@
+<nav class="navbar navbar-expand-lg glass-navbar mb-4">
+    <div class="container-md">
+        <div class="d-flex align-items-center gap-2">
+            <a href="https://www.tbceducation.ge/" target="_blank" rel="noopener" title="თიბისი განათლება">
+                <img src="{{ url_for('static', filename='images/tbc_logo.png') }}" alt="TBC Education" height="50">
+            </a>
+            <a class="navbar-brand fw-bold mb-0" href="/">BookVerse</a>
+        </div>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item"><a class="nav-link" href="/main">მთავარი</a></li>
+                <li class="nav-item"><a class="nav-link" href="/about_us">ჩვენ შესახებ</a></li>
+                {% if current_user.is_authenticated and current_user.is_admin %}
+                <li class="nav-item"><a class="nav-link" href="/add_book">წიგნის დამატება</a></li>
+                <li class="nav-item"><a class="nav-link" href="/admin">ადმინის გვერდი</a></li>
+
+                {% endif %}
+                <li class="nav-item"><a class="nav-link" href="/ask_ai">AI ასისტენტი</a></li>
+            </ul>
+
+            <ul class="navbar-nav me-3">
+                <li class="nav-item">
+                    <a class="nav-link d-flex align-items-center gap-1" href="/cart" data-tooltip="თქვენი კალათა">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-cart" viewBox="0 0 16 16">
+                            <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l1.313 7h8.17l1.313-7zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
+                        </svg>
+                        <span>კალათა</span>
+                        <span class="badge bg-secondary">{{ cart_items }}</span>
+                    </a>
+                </li>
+            </ul>
+
+            <form class="d-flex btn-group">
+                {% if current_user.is_authenticated %}
+                    <span class="navbar-text fw-bold me-2 text-dark">
+                        {{ current_user.username }}{% if current_user.is_admin %} (ადმინი){% endif %}
+                    </span>
+                    <a href="/logout" class="btn btn-outline-dark">გასვლა</a>
+                {% else %}
+                    <a href="/login" class="btn btn-outline-dark">შესვლა</a>
+                    <a href="/register" class="btn btn-outline-dark">რეგისტრაცია</a>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</nav>

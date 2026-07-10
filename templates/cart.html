@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-md glass-panel p-5 mt-4 reveal">
+    <h2 class="text-center mb-4">თქვენი კალათა</h2>
+
+
+    <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-3">
+        {% for product in products %}
+        <div class="col">
+            <div class="card glass-card h-100 position-relative">
+
+                {% if quantities[product.id] > 1 %}
+                <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-2" style="z-index: 2; font-size: 0.8rem;">
+                    x{{ quantities[product.id] }}
+                </span>
+                {% endif %}
+
+                <img src="{{ url_for('static', filename='images/' + product.image) }}"
+                     class="card-img-top"
+                     alt="{{ product.title }}"
+                     style="height: 180px; object-fit: contain; background: rgba(0,0,0,0.15);">
+
+
+                <div class="card-body d-flex flex-column p-2">
+                    <h6 class="card-title fw-bold text-truncate mb-1" style="font-size: 0.85rem;">{{ product.title }}</h6>
+                    <p class="card-text text-muted small mb-2">
+                        ფასი: {{ product.price }} ₾
+                        {% if quantities[product.id] > 1 %}
+                        <br><span class="text-muted" style="font-size: 0.78rem;">({{ quantities[product.id] }} × {{ product.price }} = {{ product.price * quantities[product.id] }} ₾)</span>
+                        {% endif %}
+                    </p>
+
+
+                    <a href="/remove_from_cart/{{ product.id }}"
+                       class="btn btn-outline-danger btn-sm mt-auto">
+                       წაშლა
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+
+        <div class="col-12">
+            <div class="empty-state">
+                <div class="empty-icon">🛒</div>
+                <p>თქვენი კალათა ცარიელია.</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if products %}
+    <hr class="my-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <h4 class="mb-0">ჯამი: <span class="text-success fw-bold">{{ total_price }} ₾</span></h4>
+        {% if current_user.is_authenticated %}
+        <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#cartPaymentModal">
+            გადახდა
+        </button>
+        {% else %}
+        <a href="{{ url_for('login', next=request.path) }}" class="btn btn-success btn-lg">
+            გადახდისთვის გაიარეთ ავტორიზაცია
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col">
+            <a href="/" class="btn btn-outline-info">შოპინგის გაგრძელება</a>
+        </div>
+    </div>
+</div>
+
+{% if products and current_user.is_authenticated %}
+<!-- ვითომ გადახდის მოდალი (მთელი კალათისთვის) -->
+<div class="modal fade" id="cartPaymentModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content payment-modal-content">
+
+      <div id="cartPaymentStepForm">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold">გადახდა</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p class="mb-3 payment-subtext">{{ cart_items }} პროდუქტი — <strong class="payment-strong">{{ total_price }} ₾</strong></p>
+
+          <div class="mb-3">
+            <label class="form-label">ბარათის ნომერი</label>
+            <input type="text" class="form-control payment-input" id="cartCardNumber" maxlength="19"
+                   placeholder="0000 0000 0000 0000" inputmode="numeric">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">ბარათის მფლობელი</label>
+            <input type="text" class="form-control payment-input" id="cartCardHolder" placeholder="სახელი გვარი">
+          </div>
+
+          <div class="row">
+            <div class="col-7 mb-3">
+              <label class="form-label">ვადა (თვე/წელი)</label>
+              <input type="text" class="form-control payment-input" id="cartCardExpiry" maxlength="5" placeholder="MM/YY">
+            </div>
+            <div class="col-5 mb-3">
+              <label class="form-label">CVV</label>
+              <input type="text" class="form-control payment-input" id="cartCardCvv" maxlength="3" placeholder="123" inputmode="numeric">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">გაუქმება</button>
+          <button type="button" class="btn btn-success" id="cartPayNowBtn">გადახდა {{ total_price }} ₾</button>
+        </div>
+      </div>
+
+      <div id="cartPaymentStepProcessing" class="d-none text-center py-5">
+        <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status"></div>
+        <p class="fw-bold payment-strong">გადახდა მუშავდება...</p>
+      </div>
+
+      <div id="cartPaymentStepSuccess" class="d-none text-center py-5">
+        <div class="payment-success-check mb-3">✓</div>
+        <p class="fw-bold fs-5 mb-1 payment-strong">შეკვეთა წარმატებით გაფორმდა!</p>
+        <p class="payment-subtext">მადლობა შეძენისთვის...</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<form id="checkoutForm" action="{{ url_for('checkout') }}" method="POST" class="d-none"></form>
+
+<style>
+.payment-modal-content {
+    background: linear-gradient(160deg, var(--bg-mid) 0%, var(--bg-deep) 100%);
+    border: 1px solid var(--glass-border);
+    color: var(--ink);
+    box-shadow: var(--shadow-lift);
+}
+.payment-modal-content .modal-header,
+.payment-modal-content .modal-footer {
+    border-color: var(--glass-border);
+}
+.payment-modal-content .modal-title,
+.payment-strong {
+    color: var(--ink) !important;
+}
+.payment-subtext {
+    color: var(--ink-dim) !important;
+}
+.payment-modal-content .form-label {
+    color: var(--ink) !important;
+}
+.payment-input {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid var(--glass-border) !important;
+    color: var(--ink) !important;
+}
+.payment-input::placeholder {
+    color: var(--ink-faint) !important;
+}
+.payment-input:focus {
+    background: rgba(255, 255, 255, 0.12) !important;
+    border-color: var(--accent) !important;
+    color: var(--ink) !important;
+    box-shadow: 0 0 0 0.2rem rgba(232, 184, 109, 0.25) !important;
+}
+.payment-success-check {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: #198754;
+    color: #fff;
+    font-size: 2.2rem;
+    animation: paymentPop 0.4s ease;
+    margin-inline: auto;
+}
+@keyframes paymentPop {
+    0% { transform: scale(0); opacity: 0; }
+    70% { transform: scale(1.15); opacity: 1; }
+    100% { transform: scale(1); }
+}
+</style>
+
+<script>
+(function() {
+
+    var modalEl = document.getElementById('cartPaymentModal');
+    document.body.appendChild(modalEl);
+
+    const cardNumber = document.getElementById('cartCardNumber');
+    const cardExpiry = document.getElementById('cartCardExpiry');
+    const cardCvv = document.getElementById('cartCardCvv');
+    const payNowBtn = document.getElementById('cartPayNowBtn');
+
+    cardNumber.addEventListener('input', function() {
+        let v = this.value.replace(/\D/g, '').slice(0, 16);
+        this.value = v.replace(/(.{4})/g, '$1 ').trim();
+    });
+
+    cardExpiry.addEventListener('input', function() {
+        let v = this.value.replace(/\D/g, '').slice(0, 4);
+        if (v.length > 2) v = v.slice(0, 2) + '/' + v.slice(2);
+        this.value = v;
+    });
+
+    cardCvv.addEventListener('input', function() {
+        this.value = this.value.replace(/\D/g, '').slice(0, 3);
+    });
+
+    payNowBtn.addEventListener('click', function() {
+        document.getElementById('cartPaymentStepForm').classList.add('d-none');
+        document.getElementById('cartPaymentStepProcessing').classList.remove('d-none');
+
+        setTimeout(function() {
+            document.getElementById('cartPaymentStepProcessing').classList.add('d-none');
+            document.getElementById('cartPaymentStepSuccess').classList.remove('d-none');
+
+            setTimeout(function() {
+                document.getElementById('checkoutForm').submit();
+            }, 1400);
+        }, 1500);
+    });
+
+    document.getElementById('cartPaymentModal').addEventListener('hidden.bs.modal', function() {
+        document.getElementById('cartPaymentStepForm').classList.remove('d-none');
+        document.getElementById('cartPaymentStepProcessing').classList.add('d-none');
+        document.getElementById('cartPaymentStepSuccess').classList.add('d-none');
+        cardNumber.value = '';
+        cardExpiry.value = '';
+        cardCvv.value = '';
+        document.getElementById('cartCardHolder').value = '';
+    });
+})();
+</script>
+{% endif %}
+{% endblock %}

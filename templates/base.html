@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}BookVerse{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <div class="ambient-orb ambient-orb--amber"></div>
+    <div class="ambient-orb ambient-orb--violet"></div>
+    <div class="grain-overlay"></div>
+    <div class="lamp-glow" id="lampGlow"></div>
+
+    {% include 'navbar.html' %}
+
+    <div class="flex-grow-1">
+        <div class="container-md mt-3">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'danger' else category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    {% include 'footer.html' %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    (function () {
+
+        var glow = document.getElementById('lampGlow');
+        var canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+        var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        if (glow && canHover && !reduceMotion) {
+            var raf = null, mx = 0, my = 0;
+            document.addEventListener('mousemove', function (e) {
+                mx = e.clientX;
+                my = e.clientY;
+                if (!raf) {
+                    raf = requestAnimationFrame(function () {
+                        glow.style.setProperty('--mx', mx + 'px');
+                        glow.style.setProperty('--my', my + 'px');
+                        glow.style.opacity = 1;
+                        raf = null;
+                    });
+                }
+            });
+            document.addEventListener('mouseleave', function () { glow.style.opacity = 0; });
+        } else if (glow) {
+            glow.style.display = 'none';
+        }
+
+        var revealEls = document.querySelectorAll('.reveal');
+        if (revealEls.length) {
+            if (reduceMotion || !('IntersectionObserver' in window)) {
+                revealEls.forEach(function (el) { el.classList.add('is-visible'); });
+            } else {
+                var observer = new IntersectionObserver(function (entries) {
+                    entries.forEach(function (entry) {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('is-visible');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+                revealEls.forEach(function (el) { observer.observe(el); });
+            }
+        }
+    })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}
+BookVerse - AI მრჩეველი
+{% endblock %}
+{% block content %}
+<div class="container-md">
+    <div class="glass-panel p-4 p-md-5 reveal" style="max-width: 760px; margin: 0 auto;">
+
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <div class="chat-avatar chat-avatar--ai">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L13.8 8.2L20 10L13.8 11.8L12 18L10.2 11.8L4 10L10.2 8.2L12 2Z" fill="currentColor"/>
+                    <path d="M19 14L19.9 16.6L22.5 17.5L19.9 18.4L19 21L18.1 18.4L15.5 17.5L18.1 16.6L19 14Z" fill="currentColor" opacity="0.7"/>
+                </svg>
+            </div>
+            <div>
+                <h2 class="fw-bold mb-0">AI წიგნის მრჩეველი</h2>
+                <p class="text-muted mb-0">მკითხე რაც გინდა — ჟანრი, რეკომენდაცია, ავტორი ან ნებისმიერი კითხვა წიგნებზე.</p>
+            </div>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" id="askAiForm">
+            {{ form.hidden_tag() }}
+
+            {% for errors in form.errors.values() %}
+                <div class="alert alert-danger">
+                    {% for error in errors %}
+                        * {{ error }}<br>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+
+            {% if answer %}
+            <div class="chat-thread mb-4">
+                <div class="chat-row chat-row--user">
+                    <div class="chat-bubble chat-bubble--user">
+                        {{ question }}
+                    </div>
+                    <div class="chat-avatar chat-avatar--user">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="8" r="4" fill="currentColor"/>
+                            <path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8" fill="currentColor"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="chat-row chat-row--ai reveal">
+                    <div class="chat-avatar chat-avatar--ai">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2L13.8 8.2L20 10L13.8 11.8L12 18L10.2 11.8L4 10L10.2 8.2L12 2Z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <div class="chat-bubble chat-bubble--ai" style="white-space: pre-wrap;">{{ answer }}</div>
+                </div>
+            </div>
+            {% endif %}
+
+            <label class="form-label" for="{{ form.question.id }}">{{ form.question.label.text }}</label>
+            {{ form.question(class="form-control ai-question-input", placeholder="მაგ: მირჩიე ფენტეზი ჟანრის წიგნი დამწყებისთვის…", rows="1") }}
+
+            <div class="d-flex justify-content-end mt-3">
+                {{ form.submit(class="btn btn-primary px-4", value="ჰკითხე AI-ს", id="askAiSubmit") }}
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+(function () {
+    var form = document.getElementById('askAiForm');
+    var btn = document.getElementById('askAiSubmit');
+    if (form && btn) {
+        form.addEventListener('submit', function () {
+            btn.value = 'ვფიქრობ…';
+            btn.disabled = true;
+        });
+    }
+})();
+</script>
+{% endblock %}

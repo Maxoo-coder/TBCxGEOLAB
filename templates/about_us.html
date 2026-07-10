@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row align-items-center glass-panel p-5 reveal">
+        <div class="col-lg-6">
+            <h2 class="display-4 fw-bold text-primary mb-4">ჩვენს შესახებ</h2>
+            <p class="lead text-secondary">
+                მოგესალმებით ჩვენს წიგნების პლატფორმაზე! ჩვენი მისიაა შევქმნათ სივრცე, სადაც თითოეული წიგნის მოყვარული იპოვის მისთვის საინტერესო ლიტერატურას.
+            </p>
+            <p>
+                ჩვენი საიტი აერთიანებს თანამედროვე ტექნოლოგიებსა და წიგნების სიყვარულს. ჩვენი მიზანია, გავხადოთ წიგნების შერჩევის პროცესი მაქსიმალურად მარტივი და სასიამოვნო.
+            </p>
+            <div class="mt-4">
+                <a href="{{ url_for('home') }}" class="btn btn-primary btn-lg">წიგნების კატალოგი</a>
+            </div>
+        </div>
+        <div class="col-lg-6 text-center">
+            <img src="{{ url_for('static', filename='images/library.jpg') }}" alt="Library" class="img-fluid rounded shadow">
+        </div>
+    </div>
+</div>
+{% endblock %}

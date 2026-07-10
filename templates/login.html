@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}BookVerse - შესვლა{% endblock %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center">
+    <div class="glass-panel p-5 col-md-5 reveal">
+        <h3 class="text-center fw-bold mb-4">შესვლა</h3>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+
+            <div class="mb-3">
+                {{ form.username.label(class="form-label") }}
+                {{ form.username(class="form-control" + (" is-invalid" if form.username.errors else "")) }}
+                {% for error in form.username.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.password.label(class="form-label") }}
+                {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else "")) }}
+                {% for error in form.password.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            {{ form.submit(class="btn btn-primary w-100") }}
+        </form>
+        <p class="text-center mt-3 mb-0">არ გაქვთ ანგარიში? <a href="{{ url_for('register') }}">შექმენით</a></p>
+    </div>
+</div>
+{% endblock %}
